@@ -9,3 +9,6 @@ rel/erl-dns
 zones.json
 .eunit/
 db/
+.rebar/
+_build/
+*~
