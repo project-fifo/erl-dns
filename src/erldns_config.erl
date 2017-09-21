@@ -157,6 +157,8 @@ use_root_hints() ->
 keyget(Key, Data) ->
   keyget(Key, Data, undefined).
 
+keyget(Key, Data, Default) when is_map(Data) ->
+    maps:get(Key, Data, Default);
 keyget(Key, Data, Default) ->
   case lists:keyfind(Key, 1, Data) of
     false ->

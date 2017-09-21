@@ -101,13 +101,8 @@ terminate(_, _State) ->
 code_change(_, State, _) ->
   {ok, State}.
 
-
-
 % Internal API
-json_to_erlang([{<<"name">>, Name}, {<<"records">>, JsonRecords}], Parsers) ->
-  json_to_erlang([{<<"name">>, Name}, {<<"sha">>, ""}, {<<"records">>, JsonRecords}], Parsers);
-
-json_to_erlang([{<<"name">>, Name}, {<<"sha">>, Sha}, {<<"records">>, JsonRecords}], Parsers) ->
+json_to_erlang(#{<<"name">> := Name, <<"sha">> := Sha, <<"records">> := JsonRecords}, Parsers) ->
   Records = lists:map(
               fun(JsonRecord) ->
                   Data = json_record_to_list(JsonRecord),
@@ -126,14 +121,17 @@ json_to_erlang([{<<"name">>, Name}, {<<"sha">>, Sha}, {<<"records">>, JsonRecord
   FilteredRecords = lists:filter(record_filter(), Records),
   DistinctRecords = lists:usort(FilteredRecords),
   % lager:debug("After parsing for ~p: ~p", [Name, DistinctRecords]),
-  {Name, Sha, DistinctRecords}.
+  {Name, Sha, DistinctRecords};
+json_to_erlang(Obj, Parsers) ->
+    json_to_erlang(Obj#{<<"sha">> => <<>>}, Parsers).
 
 record_filter() ->
-  fun(R) ->
-      case R of
-        {} -> false;
-        _ -> true
-      end
+  fun(R) when is_map(R) ->
+          maps:size(R) > 0;
+     ({}) ->
+          false;
+     (_) ->
+          true
   end.
 
 -spec apply_context_list_check(sets:set(), sets:set()) -> [fail] | [pass].
@@ -190,8 +188,8 @@ try_custom_parsers(Data, [Parser|Rest]) ->
 
 % Internal converters
 json_record_to_erlang([Name, Type, _Ttl, null, _]) ->
-  lager:error("record name=~p type=~p has null data", [Name, Type]),
-  {};
+    lager:error("record name=~p type=~p has null data", [Name, Type]),
+    #{};
 
 json_record_to_erlang([Name, <<"SOA">>, Ttl, Data, _Context]) ->
   #dns_rr{
