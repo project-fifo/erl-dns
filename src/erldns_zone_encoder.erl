@@ -94,7 +94,7 @@ code_change(_, State, _) ->
 zone_to_json(Zone, Encoders) ->
   Records = records_to_json(Zone, Encoders),
   FilteredRecords = lists:filter(record_filter(), Records),
-  jsx:encode([{<<"erldns">>,
+  jsone:encode([{<<"erldns">>,
                [
                 {<<"zone">>, [
                               {<<"name">>, Zone#zone.name},

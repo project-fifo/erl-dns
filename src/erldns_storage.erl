@@ -163,7 +163,7 @@ load_zones(Filename) when is_list(Filename) ->
     case file:read_file(Filename) of
         {ok, Binary} ->
             lager:info("Parsing zones JSON"),
-            JsonZones = jsx:decode(Binary),
+            JsonZones = jsone:decode(Binary),
             lager:info("Putting zones into cache"),
             lists:foreach(
               fun(JsonZone) ->

@@ -18,6 +18,7 @@
                   cowlib,
                   ranch,
                   cowboy,
+                  jsone,
                   hottub]},
   {start_phases, [{post_start, []}]}
   ]}.
